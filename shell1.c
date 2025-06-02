@@ -10,7 +10,7 @@
 /* colors */
 #define RED "\x1b[31m"
 #define RESET "\x1b[0m"
-/*execute funcion*/
+
 void execute(char **args) {
     if (strcmp(args[0], "exit") == 0) {
         printf("Closing the shell.\n");
