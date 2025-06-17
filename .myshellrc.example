@@ -1,0 +1,10 @@
+# Example configuration for MyShell (copy to ~/.myshellrc)
+# Lines starting with # are comments.
+
+# Available colors: NONE, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, RESET
+
+# Color of username in prompt
+color_user=YELLOW
+
+# Color of current path in prompt
+color_path=BLUE 
