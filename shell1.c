@@ -20,6 +20,28 @@ void exit_command() {
     exit(0);
 }
 
+void whoami_command(char **args) {
+  char *user = getenv("USER");
+  if (user) {
+    printf(GREEN"%s\n"RESET, user);
+  } else {
+    printf(RED"Cannot find the current user.\n"RESET);
+  }
+}
+
+void cat_command(char **args) {           // needs to be finished (cannot write)
+  FILE *file = fopen(args[1], "r");
+  if (file == NULL) {
+    printf("Cannot open the %s file.\n", args[1]);
+    return;
+  }
+  int ch;
+  while ((ch = fgetc(file)) != EOF) {
+    putchar(ch);
+  }
+  fclose(file);
+}
+
 void mkdir_command(char **args) {
   if (args[1] == NULL) {
     printf("Usage: mkdir <directory_name>\n");
@@ -28,7 +50,7 @@ void mkdir_command(char **args) {
   if (mkdir(args[1], 0755) == 0) {
     printf(GREEN"Directory %s successfully created.\n"RESET, args[1]);
   } else {
-    perror(RED"mkdir\n"RESET);
+    perror(RED"mkdir"RESET);
   }
 }
 
@@ -40,7 +62,7 @@ void rmdir_command(char **args) {
   if (rmdir(args[1]) == 0) {
     printf(GREEN"Successfully deleted %s directory.\n"RESET, args[1]);
   } else {
-    perror(RED"Cannot delete directory.\n"RESET);
+    perror(RED"Cannot delete directory"RESET);
   }
 }
 
@@ -87,13 +109,15 @@ void help_command() {
     printf(CYAN"Built-in commands:\n"RESET);
     printf("  help       - Show this help\n");
     printf("  exit       - Exit the shell\n");
-    printf("  cd [dir]   - Change directory\n");
+    printf("  cd <dir>   - Change directory\n");
     printf("  pwd        - Print working directory\n");
     printf("  clear      - Clear screen\n");
     printf("  mytime     - Show current date and time\n");
     printf("  echo [text]- Print text (supports -n flag)\n");
     printf("  mkdir <dir>- Create directory\n");
     printf("  rmdir <dir>- Remove empty directory\n");
+    printf("  cat <dir>  - Display content of file\n");
+    printf("  whoami     - Shows the current user\n");
     printf(GREEN"External commands are also supported!\n"RESET);
     printf("\n");
 }
@@ -141,6 +165,10 @@ void execute_command(char **args) {
         mkdir_command(args);
     } else if (strcmp(args[0], "rmdir") == 0) {
         rmdir_command(args);
+    } else if (strcmp(args[0], "cat") == 0) {
+        cat_command(args);
+    } else if (strcmp(args[0], "whoami") == 0) {
+        whoami_command(args);
     } else {
         execute_external(args);
     }
@@ -152,13 +180,15 @@ int main() {
     printf(CYAN"Built-in commands:\n"RESET);
     printf("  help       - Show this help\n");
     printf("  exit       - Exit the shell\n");
-    printf("  cd [dir]   - Change directory\n");
+    printf("  cd <dir>   - Change directory\n");
     printf("  pwd        - Print working directory\n");
     printf("  clear      - Clear screen\n");
     printf("  mytime     - Show current date and time\n");
     printf("  echo [text]- Print text (supports -n flag)\n");
     printf("  mkdir <dir>- Create directory\n");
     printf("  rmdir <dir>- Remove empty directory\n");
+    printf("  cat <dir>  - Display content of file\n");
+    printf("  whoami     - Shows the current user\n");
     printf(GREEN"External commands are also supported!\n"RESET);
     printf("\n");
 
