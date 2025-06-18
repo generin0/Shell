@@ -21,6 +21,7 @@ static int sh_rmdir(char **args);
 static int sh_help(char **args);
 static int sh_cat(char **args);
 static int sh_whoami(char **args);
+static int sh_touch(char **args);
 
 /* Table describing all builtin commands */
 static struct {
@@ -37,7 +38,8 @@ static struct {
     {"rmdir", sh_rmdir},
     {"help",  sh_help},
     {"cat",   sh_cat},
-    {"whoami",sh_whoami}
+    {"whoami",sh_whoami},
+    {"touch", sh_touch}
 };
 
 #define BUILTIN_COUNT (sizeof(builtin_table) / sizeof(builtin_table[0]))
@@ -63,6 +65,19 @@ static int sh_exit(char **args)
     return BUILTIN_EXIT;
 }
 
+static int sh_touch(char **args) 
+{
+    (void)args;
+    FILE *file = fopen(args[1], "a");
+    if (file == NULL){
+      printf(COLOR_RED"Error creating a file.\n"COLOR_RESET);
+      return BUILTIN_EXIT;
+    } else {
+      printf("File -%s is created successfully.\n", args[1]);
+      return BUILTIN_SUCCESS;
+    }
+}
+
 static int sh_whoami(char **args)
 {
     (void)args;
@@ -70,7 +85,7 @@ static int sh_whoami(char **args)
     if (user) {
         printf(COLOR_GREEN"%s\n"COLOR_RESET, user);
     } else {
-        printf(COLOR_RED"Cannot find a user."COLOR_RESET);
+        printf(COLOR_RED"Cannot find a user.\n"COLOR_RESET);
         return BUILTIN_EXIT;
     }
     return BUILTIN_SUCCESS;
@@ -107,7 +122,7 @@ static int sh_cat(char **args)
 {
     FILE *file = fopen(args[1], "r");
     if (file == NULL) {
-        printf("Cannot open the %s file.", args[1]);
+        printf("Cannot open the %s file.\n", args[1]);
         return BUILTIN_EXIT;
     }
     int ch;
@@ -195,15 +210,16 @@ void print_help(void)
     printf(COLOR_CYAN  "Built-in commands:\n" COLOR_RESET);
     printf("  help       - Show this help\n");
     printf("  exit       - Exit the shell\n");
-    printf("  cd [d]     - Change directory\n");
+    printf("  cd <d>     - Change directory\n");
     printf("  pwd        - Print working directory\n");
     printf("  clear      - Clear screen\n");
     printf("  mytime     - Show current date and time\n");
-    printf("  echo [txt] - Print text\n");
+    printf("  echo <t>   - Print text\n");
     printf("  mkdir <d>  - Create directory\n");
     printf("  rmdir <d>  - Remove empty directory\n");
     printf("  cat <f>    - Show file contents\n");
     printf("  whoami     - Shows the current user\n");
+    printf("  touch <f>  - Creates a file\n");
     printf(COLOR_GREEN "External commands are also supported!\n" COLOR_RESET);
     puts("");
 }
