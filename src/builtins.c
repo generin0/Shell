@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <dirent.h>
 
 #include "builtins.h"
 #include "utils.h"
@@ -22,6 +23,8 @@ static int sh_help(char **args);
 static int sh_cat(char **args);
 static int sh_whoami(char **args);
 static int sh_touch(char **args);
+static int sh_rm(char **args);
+static int sh_ls(char **args);
 
 /* Table describing all builtin commands */
 static struct {
@@ -39,7 +42,9 @@ static struct {
     {"help",  sh_help},
     {"cat",   sh_cat},
     {"whoami",sh_whoami},
-    {"touch", sh_touch}
+    {"touch", sh_touch},
+    {"rm",    sh_rm},
+    {"ls",    sh_ls}
 };
 
 #define BUILTIN_COUNT (sizeof(builtin_table) / sizeof(builtin_table[0]))
@@ -65,16 +70,61 @@ static int sh_exit(char **args)
     return BUILTIN_EXIT;
 }
 
+static int sh_ls(char **args)
+{
+    (void)args;
+    DIR *dir = opendir(".");
+    if (!dir) {
+        perror("ls");
+        return BUILTIN_EXIT;
+    }
+
+    struct dirent *entry;
+    while ((entry = readdir(dir))) {
+        if (entry->d_name[0] == '.') continue;
+
+        struct stat st;
+        stat(entry->d_name, &st);
+
+        if (S_ISDIR(st.st_mode)) {
+            printf(COLOR_BLUE "%s  " COLOR_RESET, entry->d_name);
+        } else if (st.st_mode & S_IXUSR) {
+            printf(COLOR_GREEN "%s  " COLOR_RESET, entry->d_name);
+        } else {
+            printf("%s  ", entry->d_name);
+        }
+    }
+    printf("\n");
+    closedir(dir);
+    return BUILTIN_SUCCESS;
+}
+
+static int sh_rm(char **args) 
+{
+    if (args[1] == NULL) {
+        printf(COLOR_GREEN"Usage: rm <f>"COLOR_RESET);
+        return BUILTIN_SUCCESS;
+    } 
+    
+    if (unlink(args[1]) == 0) {
+        printf("File %s removed successfully.\n", args[1]);
+        return BUILTIN_SUCCESS;
+    } else {
+        perror(COLOR_RED"Error removing file:"COLOR_RESET);
+        return BUILTIN_EXIT;
+    }
+}
+
 static int sh_touch(char **args) 
 {
     (void)args;
     FILE *file = fopen(args[1], "a");
-    if (file == NULL){
-      printf(COLOR_RED"Error creating a file.\n"COLOR_RESET);
-      return BUILTIN_EXIT;
+    if (file == NULL) {
+        printf(COLOR_RED"Error creating a file.\n"COLOR_RESET);
+        return BUILTIN_EXIT;
     } else {
-      printf("File -%s is created successfully.\n", args[1]);
-      return BUILTIN_SUCCESS;
+        printf("File -%s is created successfully.\n", args[1]);
+        return BUILTIN_SUCCESS;
     }
 }
 
@@ -220,6 +270,8 @@ void print_help(void)
     printf("  cat <f>    - Show file contents\n");
     printf("  whoami     - Shows the current user\n");
     printf("  touch <f>  - Creates a file\n");
+    printf("  rm <f>     - Deletes a file\n");
+    printf("  ls         - Show the files of current directory\n");
     printf(COLOR_GREEN "External commands are also supported!\n" COLOR_RESET);
     puts("");
 }
