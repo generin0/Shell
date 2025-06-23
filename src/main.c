@@ -45,7 +45,7 @@ int main(void)
 {
     /* init config and greeting */
     config_init();
-    print_help();
+    printf("Use 'help' to see the commands.\n");
 
     while (1) {
         /* Build prompt "user@cwd$ " */

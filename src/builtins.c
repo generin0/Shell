@@ -25,6 +25,7 @@ static int sh_whoami(char **args);
 static int sh_touch(char **args);
 static int sh_rm(char **args);
 static int sh_ls(char **args);
+static int sh_mv(char **args);
 
 /* Table describing all builtin commands */
 static struct {
@@ -44,7 +45,8 @@ static struct {
     {"whoami",sh_whoami},
     {"touch", sh_touch},
     {"rm",    sh_rm},
-    {"ls",    sh_ls}
+    {"ls",    sh_ls},
+    {"mv",    sh_mv}
 };
 
 #define BUILTIN_COUNT (sizeof(builtin_table) / sizeof(builtin_table[0]))
@@ -68,6 +70,24 @@ static int sh_exit(char **args)
     (void)args; /* unused */
     printf(COLOR_RED "Closing the shell.\n" COLOR_RESET);
     return BUILTIN_EXIT;
+}
+
+static int sh_mv(char **args)
+{
+    if (!args[1] || !args[2]) {
+        printf(COLOR_GREEN"Usage: mv <source> <destination>\n"COLOR_RESET);
+        return BUILTIN_SUCCESS;
+    }
+    
+    if (rename(args[1], args[2]) == 0) {
+        printf(COLOR_GREEN"File '%s' is successfully moved to -> %s\n"COLOR_RESET, args[1], args[2]);
+        return BUILTIN_SUCCESS;
+    } else {
+        printf(COLOR_RED"Error moving a file."COLOR_RESET);
+        return BUILTIN_EXIT;
+    }
+
+    return BUILTIN_SUCCESS;
 }
 
 static int sh_ls(char **args)
@@ -117,7 +137,6 @@ static int sh_rm(char **args)
 
 static int sh_touch(char **args) 
 {
-    (void)args;
     FILE *file = fopen(args[1], "a");
     if (file == NULL) {
         printf(COLOR_RED"Error creating a file.\n"COLOR_RESET);
@@ -258,20 +277,21 @@ void print_help(void)
     puts("");
     printf(COLOR_GREEN "═══ SHELL COMMANDS ═══\n" COLOR_RESET);
     printf(COLOR_CYAN  "Built-in commands:\n" COLOR_RESET);
-    printf("  help       - Show this help\n");
-    printf("  exit       - Exit the shell\n");
-    printf("  cd <d>     - Change directory\n");
-    printf("  pwd        - Print working directory\n");
-    printf("  clear      - Clear screen\n");
-    printf("  mytime     - Show current date and time\n");
-    printf("  echo <t>   - Print text\n");
-    printf("  mkdir <d>  - Create directory\n");
-    printf("  rmdir <d>  - Remove empty directory\n");
-    printf("  cat <f>    - Show file contents\n");
-    printf("  whoami     - Shows the current user\n");
-    printf("  touch <f>  - Creates a file\n");
-    printf("  rm <f>     - Deletes a file\n");
-    printf("  ls         - Show the files of current directory\n");
+    printf("  help        - Show this help\n");
+    printf("  exit        - Exit the shell\n");
+    printf("  cd <d>      - Change directory\n");
+    printf("  pwd         - Print working directory\n");
+    printf("  clear       - Clear screen\n");
+    printf("  mytime      - Show current date and time\n");
+    printf("  echo <t>    - Print text\n");
+    printf("  mkdir <d>   - Create directory\n");
+    printf("  rmdir <d>   - Remove empty directory\n");
+    printf("  cat <f>     - Show file contents\n");
+    printf("  whoami      - Shows the current user\n");
+    printf("  touch <f>   - Creates a file\n");
+    printf("  rm <f>      - Deletes a file\n");
+    printf("  ls          - Show the files of current directory\n");
+    printf("  mv <f><des> - Show the files of current directory\n");
     printf(COLOR_GREEN "External commands are also supported!\n" COLOR_RESET);
     puts("");
 }
