@@ -26,6 +26,8 @@ static int sh_touch(char **args);
 static int sh_rm(char **args);
 static int sh_ls(char **args);
 static int sh_mv(char **args);
+static int sh_sleep(char **args);
+static int sh_env(char **args);
 
 /* Table describing all builtin commands */
 static struct {
@@ -46,7 +48,9 @@ static struct {
     {"touch", sh_touch},
     {"rm",    sh_rm},
     {"ls",    sh_ls},
-    {"mv",    sh_mv}
+    {"mv",    sh_mv},
+    {"sleep", sh_sleep},
+    {"env",   sh_env}
 };
 
 #define BUILTIN_COUNT (sizeof(builtin_table) / sizeof(builtin_table[0]))
@@ -70,6 +74,34 @@ static int sh_exit(char **args)
     (void)args; /* unused */
     printf(COLOR_RED "Closing the shell.\n" COLOR_RESET);
     return BUILTIN_EXIT;
+}
+
+static int sh_env(char **args)
+{
+    (void)args;
+    extern char **environ;
+    for (char **env = environ; *env; env++) {
+        printf("%s\n", *env);
+    }
+    return BUILTIN_SUCCESS;
+}
+
+static int sh_sleep(char **args)
+{
+    if (!args[1]) {
+        printf(COLOR_GREEN"Usage: sleep <seconds>\n"COLOR_RESET);
+        return BUILTIN_SUCCESS;
+    }
+    
+    int sec = atoi(args[1]);
+
+    if (sec >= 1000) {
+        printf(COLOR_RED"Too much seconds\n"COLOR_RESET);
+        return BUILTIN_EXIT;
+    }
+
+    sleep(sec);
+    return BUILTIN_SUCCESS;
 }
 
 static int sh_mv(char **args)
@@ -291,7 +323,9 @@ void print_help(void)
     printf("  touch <f>   - Creates a file\n");
     printf("  rm <f>      - Deletes a file\n");
     printf("  ls          - Show the files of current directory\n");
-    printf("  mv <f><des> - Show the files of current directory\n");
+    printf("  mv <f><des> - Moves the file\n");
+    printf("  sleep <sec> - Executing delay\n");
+    printf("  env         - Shows the current environments\n");
     printf(COLOR_GREEN "External commands are also supported!\n" COLOR_RESET);
     puts("");
 }
