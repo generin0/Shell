@@ -162,7 +162,7 @@ static int sh_rm(char **args)
         printf("File %s removed successfully.\n", args[1]);
         return BUILTIN_SUCCESS;
     } else {
-        perror(COLOR_RED"Error removing file:"COLOR_RESET);
+        perror(COLOR_RED"Error removing file: %s\n", args[1]COLOR_RESET);
         return BUILTIN_EXIT;
     }
 }
